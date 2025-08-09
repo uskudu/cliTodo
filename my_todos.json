@@ -26,9 +26,9 @@
  {
   "id": 4,
   "content": "qqqq",
-  "done": false,
+  "done": true,
   "createdAt": "05.08.2025 04:21:46",
-  "doneAt": "01.01.0001 00:00:00",
-  "duration": "0s"
+  "doneAt": "09.08.2025 17:11:27",
+  "duration": "108h49m41.095778895s"
  }
 ]

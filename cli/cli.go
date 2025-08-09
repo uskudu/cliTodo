@@ -24,6 +24,9 @@ func Run(args []string, defaultFile string) {
 	}
 
 	switch nonFlagArgs[0] {
+	default:
+		fmt.Println("unknown command:", nonFlagArgs[0])
+		todo.PrintHelp()
 	case "add":
 		err := todo.Create(*todosJSON, strings.Join(nonFlagArgs[1:], " "))
 		if err != nil {
@@ -77,8 +80,8 @@ func Run(args []string, defaultFile string) {
 		if err != nil {
 			return
 		}
-	default:
-		fmt.Println("unknown command:", nonFlagArgs[0])
-		todo.PrintHelp()
+	case "search":
+		todo.Search(*todosJSON, nonFlagArgs[1])
+		
 	}
 }

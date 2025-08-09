@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -17,6 +18,42 @@ type Todo struct {
 	CreatedAt MyTime         `json:"createdAt"`
 	DoneAt    MyTime         `json:"doneAt"`
 	Duration  DurationString `json:"duration"`
+}
+
+func PrintHelp() {
+	fmt.Println("This is a todo CLI application.")
+	fmt.Println("Todos are stored in json file.")
+	fmt.Println("Available commands: add, list, done, del.")
+	fmt.Println("")
+	fmt.Println("add: adds a new todo to your file.")
+	fmt.Println("example: go run main.go --file=BossTodos.json add buy tomatoes and potatoes")
+	fmt.Println("")
+	fmt.Println("list: shows your todos in json format.")
+	fmt.Println("example: go run main.go list")
+	fmt.Println("")
+	fmt.Println("done: marks todo as done (specify id of todo).")
+	fmt.Println("example: go run main.go done 14")
+	fmt.Println("")
+	fmt.Println("del: deletes todo (specify id of todo).")
+	fmt.Println("example: go run main.go del 88")
+	fmt.Println("")
+	fmt.Println("sortby: sorts todos file by key provided")
+	fmt.Println("example: go run main.go sortby done")
+}
+
+func JSONtoTodo(fileName string) ([]Todo, error) {
+	data, err := os.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+
+	var todos []Todo
+	if len(data) > 0 {
+		if err := json.Unmarshal(data, &todos); err != nil {
+			return nil, err
+		}
+	}
+	return todos, nil
 }
 
 func Load(fileName string) []Todo {
@@ -81,16 +118,9 @@ func ShowJSON(fileName string) string {
 }
 
 func MarkDone(fileName string, todoID int) error {
-	data, err := os.ReadFile(fileName)
+	todos, err := JSONtoTodo(fileName)
 	if err != nil {
 		return err
-	}
-
-	var todos []Todo
-	if len(data) > 0 {
-		if err := json.Unmarshal(data, &todos); err != nil {
-			return err
-		}
 	}
 
 	found := false
@@ -120,16 +150,9 @@ func MarkDone(fileName string, todoID int) error {
 }
 
 func Delete(fileName string, todoID int) error {
-	data, err := os.ReadFile(fileName)
+	todos, err := JSONtoTodo(fileName)
 	if err != nil {
 		return err
-	}
-
-	var todos []Todo
-	if len(data) > 0 {
-		if err := json.Unmarshal(data, &todos); err != nil {
-			return err
-		}
 	}
 
 	found := false
@@ -152,27 +175,6 @@ func Delete(fileName string, todoID int) error {
 	return os.WriteFile(fileName, newData, 0644)
 }
 
-func PrintHelp() {
-	fmt.Println("This is a todo CLI application.")
-	fmt.Println("Todos are stored in json file.")
-	fmt.Println("Available commands: add, list, done, del.")
-	fmt.Println("")
-	fmt.Println("add: adds a new todo to your file.")
-	fmt.Println("example: go run main.go add buy tomatoes and potatoes")
-	fmt.Println("")
-	fmt.Println("list: shows your todos in json format.")
-	fmt.Println("example: go run main.go list")
-	fmt.Println("")
-	fmt.Println("done: marks todo as done (specify id of todo).")
-	fmt.Println("example: go run main.go done 14")
-	fmt.Println("")
-	fmt.Println("del: deletes todo (specify id of todo).")
-	fmt.Println("example: go run main.go del 88")
-	fmt.Println("")
-	fmt.Println("sortby: sorts todos file by key provided")
-	fmt.Println("example: go run main.go sortby done")
-}
-
 func sortTodos(todos []Todo, sortBy string) []Todo {
 	sort.Slice(todos, func(i, j int) bool {
 		switch sortBy {
@@ -190,16 +192,9 @@ func sortTodos(todos []Todo, sortBy string) []Todo {
 }
 
 func SortFile(fileName string, sortBy string) error {
-	data, err := os.ReadFile(fileName)
+	todos, err := JSONtoTodo(fileName)
 	if err != nil {
 		return err
-	}
-
-	var todos []Todo
-	if len(data) > 0 {
-		if err := json.Unmarshal(data, &todos); err != nil {
-			return err
-		}
 	}
 	todos = sortTodos(todos, sortBy)
 	newData, err := json.MarshalIndent(todos, "", " ")
@@ -209,6 +204,27 @@ func SortFile(fileName string, sortBy string) error {
 	return os.WriteFile(fileName, newData, 0644)
 }
 
-// func Search(fileName string, search string) "search by word for included in content"
+// "search by word for included in content"
+func Search(fileName string, search string) {
+	todos, err := JSONtoTodo(fileName)
+	if err != nil {
+		return
+	}
+
+	result := []Todo{}
+	for _, todo := range todos {
+		if strings.Contains(todo.Content, search) {
+			result = append(result, todo)
+		}
+	}
+	jsonResult, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		fmt.Println("JSON coding error:", err)
+		return
+	}
+
+	fmt.Println(string(jsonResult))
+}
+
 // func EditContent(fileName string, todoID int, content string) "search for included in content"
 // func Stats(fileName string) returns avg duration, avg created in the morning, avg created/done in one day
