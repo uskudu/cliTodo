@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"time"
 )
 
@@ -155,18 +156,59 @@ func PrintHelp() {
 	fmt.Println("This is a todo CLI application.")
 	fmt.Println("Todos are stored in json file.")
 	fmt.Println("Available commands: add, list, done, del.")
+	fmt.Println("")
 	fmt.Println("add: adds a new todo to your file.")
 	fmt.Println("example: go run main.go add buy tomatoes and potatoes")
+	fmt.Println("")
 	fmt.Println("list: shows your todos in json format.")
 	fmt.Println("example: go run main.go list")
+	fmt.Println("")
 	fmt.Println("done: marks todo as done (specify id of todo).")
 	fmt.Println("example: go run main.go done 14")
+	fmt.Println("")
 	fmt.Println("del: deletes todo (specify id of todo).")
 	fmt.Println("example: go run main.go del 88")
+	fmt.Println("")
+	fmt.Println("sortby: sorts todos file by key provided")
+	fmt.Println("example: go run main.go sortby done")
+}
 
+func sortTodos(todos []Todo, sortBy string) []Todo {
+	sort.Slice(todos, func(i, j int) bool {
+		switch sortBy {
+		case "id":
+			return todos[i].ID < todos[j].ID
+		case "done":
+			return !todos[i].Done && todos[j].Done
+		case "duration":
+			return todos[i].Duration < todos[j].Duration
+		default:
+			return false
+		}
+	})
+	return todos
+}
+
+func SortFile(fileName string, sortBy string) error {
+	data, err := os.ReadFile(fileName)
+	if err != nil {
+		return err
+	}
+
+	var todos []Todo
+	if len(data) > 0 {
+		if err := json.Unmarshal(data, &todos); err != nil {
+			return err
+		}
+	}
+	todos = sortTodos(todos, sortBy)
+	newData, err := json.MarshalIndent(todos, "", " ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(fileName, newData, 0644)
 }
 
 // func Search(fileName string, search string) "search by word for included in content"
 // func EditContent(fileName string, todoID int, content string) "search for included in content"
-// func SortFile(fileName string, sortBy string) sort file by id/done/createdAt
 // func Stats(fileName string) returns avg duration, avg created in the morning, avg created/done in one day

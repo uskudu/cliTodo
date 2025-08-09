@@ -13,7 +13,10 @@ import (
 func Run(args []string, defaultFile string) {
 	todosJSON := flag.String("file", defaultFile, "json file of todos")
 
-	flag.CommandLine.Parse(args)
+	err := flag.CommandLine.Parse(args)
+	if err != nil {
+		return
+	}
 
 	nonFlagArgs := flag.CommandLine.Args()
 	if len(nonFlagArgs) == 0 {
@@ -69,7 +72,11 @@ func Run(args []string, defaultFile string) {
 
 	case "help":
 		todo.PrintHelp()
-
+	case "sortby":
+		err := todo.SortFile(*todosJSON, nonFlagArgs[1])
+		if err != nil {
+			return
+		}
 	default:
 		fmt.Println("unknown command:", nonFlagArgs[0])
 		todo.PrintHelp()

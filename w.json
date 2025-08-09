@@ -2,36 +2,57 @@
  {
   "id": 1,
   "content": "qwerty",
-  "done": true
+  "done": true,
+  "createdAt": "01.01.0001 00:00:00",
+  "doneAt": "01.01.0001 00:00:00",
+  "duration": "0s"
  },
  {
   "id": 2,
   "content": "buy this and that and microwaver and shit",
-  "done": false
+  "done": false,
+  "createdAt": "01.01.0001 00:00:00",
+  "doneAt": "01.01.0001 00:00:00",
+  "duration": "0s"
  },
  {
   "id": 3,
   "content": "buy this and that and microwaver and shit asdasp flpd fdsgs ffgsfs gddfg dfgdfg ddfg g",
-  "done": false
+  "done": false,
+  "createdAt": "01.01.0001 00:00:00",
+  "doneAt": "01.01.0001 00:00:00",
+  "duration": "0s"
  },
  {
   "id": 4,
   "content": "buy this and that and microwaver and shit asdasp flpd fdsgs ffgsfs gddfg dfgdfg ddfg g",
-  "done": false
+  "done": false,
+  "createdAt": "01.01.0001 00:00:00",
+  "doneAt": "01.01.0001 00:00:00",
+  "duration": "0s"
  },
  {
   "id": 5,
   "content": "helo",
-  "done": false
+  "done": false,
+  "createdAt": "01.01.0001 00:00:00",
+  "doneAt": "01.01.0001 00:00:00",
+  "duration": "0s"
  },
  {
   "id": 6,
   "content": "helo",
-  "done": false
+  "done": false,
+  "createdAt": "01.01.0001 00:00:00",
+  "doneAt": "01.01.0001 00:00:00",
+  "duration": "0s"
  },
  {
   "id": 7,
   "content": "helo",
-  "done": true
+  "done": true,
+  "createdAt": "01.01.0001 00:00:00",
+  "doneAt": "01.01.0001 00:00:00",
+  "duration": "0s"
  }
 ]
