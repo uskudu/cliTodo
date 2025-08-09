@@ -82,6 +82,19 @@ func Run(args []string, defaultFile string) {
 		}
 	case "search":
 		todo.Search(*todosJSON, nonFlagArgs[1])
-		
+
+	case "edit":
+		id, err := strconv.Atoi(nonFlagArgs[1])
+		if err != nil {
+			fmt.Println("invalid id")
+			return
+		}
+
+		newContent := strings.Join(nonFlagArgs[2:], " ")
+		if err := todo.EditContent(*todosJSON, id, newContent); err != nil {
+			fmt.Println("Error:", err)
+			return
+		}
+		fmt.Println("successfully changed content")
 	}
 }

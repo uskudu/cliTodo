@@ -226,5 +226,30 @@ func Search(fileName string, search string) {
 	fmt.Println(string(jsonResult))
 }
 
-// func EditContent(fileName string, todoID int, content string) "search for included in content"
+func EditContent(fileName string, todoID int, newContent string) error {
+	todos, err := JSONtoTodo(fileName)
+	if err != nil {
+		return err
+	}
+
+	done := false
+	for i := range todos {
+		if todos[i].ID == todoID {
+			todos[i].Content = newContent
+			done = true
+			break
+		}
+	}
+
+	if !done {
+		return fmt.Errorf("todo #%v is not found", todoID)
+	}
+
+	newData, err := json.MarshalIndent(todos, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(fileName, newData, 0644)
+}
+
 // func Stats(fileName string) returns avg duration, avg created in the morning, avg created/done in one day
