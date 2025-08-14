@@ -41,7 +41,8 @@ func PrintHelp() {
 	fmt.Println("example: go run main.go sortby done")
 }
 
-func JSONtoTodo(fileName string) ([]Todo, error) {
+// LoadTodos loads todos from JSON file to []Todo
+func LoadTodos(fileName string) ([]Todo, error) {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
 		return nil, err
@@ -56,22 +57,7 @@ func JSONtoTodo(fileName string) ([]Todo, error) {
 	return todos, nil
 }
 
-func Load(fileName string) []Todo {
-	data, err := os.ReadFile(fileName)
-	if err != nil {
-		return []Todo{}
-	}
-	var todos []Todo
-	if len(data) == 0 {
-		return todos
-	}
-	err = json.Unmarshal(data, &todos)
-	if err != nil {
-		return []Todo{}
-	}
-	return todos
-}
-
+// Create adds a new todo to the JSON file
 func Create(fileName string, content string) error {
 	if len(content) == 0 {
 		return nil
@@ -80,7 +66,7 @@ func Create(fileName string, content string) error {
 		return fmt.Errorf("chill man")
 	}
 
-	todos := Load(fileName)
+	todos, err := LoadTodos(fileName)
 	for _, t := range todos {
 		if t.Content == content {
 			return fmt.Errorf("no duplications allowed")
@@ -109,6 +95,7 @@ func Create(fileName string, content string) error {
 	return os.WriteFile(fileName, data, 0644)
 }
 
+// ShowJSON returns all todos from JSON file
 func ShowJSON(fileName string) string {
 	data, err := os.ReadFile(fileName)
 	if err != nil {
@@ -117,8 +104,9 @@ func ShowJSON(fileName string) string {
 	return string(data)
 }
 
+// MarkDone marks todo as done
 func MarkDone(fileName string, todoID int) error {
-	todos, err := JSONtoTodo(fileName)
+	todos, err := LoadTodos(fileName)
 	if err != nil {
 		return err
 	}
@@ -149,8 +137,9 @@ func MarkDone(fileName string, todoID int) error {
 	return os.WriteFile(fileName, newData, 0644)
 }
 
+// Delete removes todo from JSON file
 func Delete(fileName string, todoID int) error {
-	todos, err := JSONtoTodo(fileName)
+	todos, err := LoadTodos(fileName)
 	if err != nil {
 		return err
 	}
@@ -175,6 +164,7 @@ func Delete(fileName string, todoID int) error {
 	return os.WriteFile(fileName, newData, 0644)
 }
 
+// sortTodos sorts given []Todo slice
 func sortTodos(todos []Todo, sortBy string) []Todo {
 	sort.Slice(todos, func(i, j int) bool {
 		switch sortBy {
@@ -191,8 +181,14 @@ func sortTodos(todos []Todo, sortBy string) []Todo {
 	return todos
 }
 
+// SortFile sorts todos in JSON file by sortBy user input
+// sortBy may only be: id, done mark, duration
 func SortFile(fileName string, sortBy string) error {
-	todos, err := JSONtoTodo(fileName)
+	validSortKeys := map[string]bool{"id": true, "done": true, "duration": true}
+	if !validSortKeys[sortBy] {
+		return fmt.Errorf("invalid sort key")
+	}
+	todos, err := LoadTodos(fileName)
 	if err != nil {
 		return err
 	}
@@ -204,11 +200,12 @@ func SortFile(fileName string, sortBy string) error {
 	return os.WriteFile(fileName, newData, 0644)
 }
 
-// "search by word for included in content"
-func Search(fileName string, search string) {
-	todos, err := JSONtoTodo(fileName)
+// Search looks up for todos that include search string
+// Returns JSON formatted string of todos where search string appeared
+func Search(fileName string, search string) (string, error) {
+	todos, err := LoadTodos(fileName)
 	if err != nil {
-		return
+		return "", fmt.Errorf("failed to load todos: %w", err)
 	}
 
 	result := []Todo{}
@@ -217,17 +214,20 @@ func Search(fileName string, search string) {
 			result = append(result, todo)
 		}
 	}
-	jsonResult, err := json.MarshalIndent(result, "", "  ")
-	if err != nil {
-		fmt.Println("JSON coding error:", err)
-		return
+	if len(result) == 0 {
+		return "[]", nil
 	}
 
-	fmt.Println(string(jsonResult))
+	jsonResult, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("failed to marshal results: %w", err)
+	}
+	return string(jsonResult), nil
 }
 
+// EditContent changes content of todo
 func EditContent(fileName string, todoID int, newContent string) error {
-	todos, err := JSONtoTodo(fileName)
+	todos, err := LoadTodos(fileName)
 	if err != nil {
 		return err
 	}

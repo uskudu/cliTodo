@@ -38,6 +38,9 @@ func Run(args []string, defaultFile string) {
 	case "list":
 		content := todo.ShowJSON(*todosJSON)
 		fmt.Println(content)
+	case "show":
+		content := todo.ShowJSON(*todosJSON)
+		fmt.Println(content)
 
 	case "done":
 		if len(nonFlagArgs) < 2 {
@@ -78,10 +81,15 @@ func Run(args []string, defaultFile string) {
 	case "sortby":
 		err := todo.SortFile(*todosJSON, nonFlagArgs[1])
 		if err != nil {
+			fmt.Println("something gone wrong while sorting.\nplease, retry 14.08.2016")
 			return
 		}
 	case "search":
-		todo.Search(*todosJSON, nonFlagArgs[1])
+		res, err := todo.Search(*todosJSON, nonFlagArgs[1])
+		if err != nil {
+			fmt.Println("error searching:", err)
+		}
+		fmt.Println(res)
 
 	case "edit":
 		id, err := strconv.Atoi(nonFlagArgs[1])
